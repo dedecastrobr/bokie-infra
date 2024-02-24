@@ -18,14 +18,16 @@ module "alb" {
 
 }
 
-variable "db_auth_pwd" {}
+variable "kc_db_username" {}
+variable "kc_db_password" {}
 
-module "db_auth" {
+module "kc_db" {
 
     source = "./modules/db"
     subnets = [module.network.private_subnet_01, module.network.private_subnet_02]
-    password = var.db_auth_pwd
-    db_name = "keycloak"
+    username = var.kc_db_username
+    password = var.kc_db_password
+    db_name = var.kc_db_username
     security_groups = [module.network.db_sg]
 
 }
@@ -38,7 +40,7 @@ module "ecr" {
 module "ecs" {
 
     source = "./modules/ecs"
-    depends_on = [ module.network, module.identity, module.alb, module.db_auth ]
+    depends_on = [ module.network, module.identity, module.alb, module.kc_db ]
 
     # ECS
     name = "BokieDev"
@@ -50,8 +52,8 @@ module "ecs" {
     ecs_task_execution_role = module.identity.iam_role.arn
     ecs_task_role = module.identity.iam_role.arn
     kc_db_name = "keycloak"
-    kc_db_password = var.db_auth_pwd
+    kc_db_password = var.kc_db_password
     keycloak_db_user = "keycloak"
-    kc_db_url = module.db_auth.db_address
+    kc_db_url = module.kc_db.db_address
 
 }

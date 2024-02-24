@@ -28,7 +28,6 @@ variable "instance_class" {
 
 variable "username" {
   description = "DB username"
-  default = "root"
 }
 
 variable "password" {
