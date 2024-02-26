@@ -20,7 +20,6 @@ resource "aws_ecs_cluster_capacity_providers" "capacity_provider" {
   }
 }
 
-
 output "id" {
   value = aws_ecs_cluster.ecs.id
 }

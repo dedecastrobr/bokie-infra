@@ -35,9 +35,14 @@ module "kc_db" {
 
 }
 
-module "ecr" {
+module "kc_ecr" {
     source = "./modules/ecr"
     name = "keycloak"
+}
+
+module "bokie_ecr" {
+    source = "./modules/ecr"
+    name = "bokie"
 }
 
 data "aws_region" "current" {}
