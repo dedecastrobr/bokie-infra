@@ -40,24 +40,42 @@ module "ecr" {
     name = "keycloak"
 }
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 module "ecs" {
 
     source = "./modules/ecs"
     depends_on = [ module.network, module.identity, module.alb, module.kc_db ]
-
-    # ECS
     name = "BokieDev"
-    subnets = [module.network.private_subnet_01, module.network.private_subnet_02]
-    security_groups = module.network.ecs_sg
-    target_group_arn = module.alb.auth_tg_arn
 
-    # TASK DEFINITION
+}
 
+module "kc_task_definition" {
+
+    source = "./modules/ecs/task-definition"
     ecs_task_execution_role = module.identity.iam_role.arn
     ecs_task_role = module.identity.iam_role.arn
+    image_name = "keycloak"
+    image_url = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/keycloak:latest"
+    log_region = "${data.aws_region.current.name}"
     kc_db_name = "keycloak"
     kc_db_password = var.kc_db_password
     keycloak_db_user = "keycloak"
     kc_db_url = module.kc_db.db_address
+
+}
+
+module "kc_service" {
+
+    depends_on = [ module.ecs ]
+
+    source = "./modules/ecs/service"
+    cluster = module.ecs.id
+    task_definition = module.kc_task_definition.arn
+    name = "keycloak-svc"
+    subnets = [module.network.private_subnet_01, module.network.private_subnet_02]
+    security_groups = module.network.ecs_sg
+    target_group_arn = module.alb.auth_tg_arn
 
 }
