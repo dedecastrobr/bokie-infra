@@ -31,3 +31,13 @@ output "private_subnet_02" {
     value = module.private_subnet_02.id
     description = "Private Subnet 02"
 }
+
+output "public_subnet_01" {
+  value = module.public_subnet_01.id
+  description = "Public Subnet 01"
+}
+
+output "public_subnet_02" {
+  value = module.public_subnet_02.id
+  description = "Public Subnet 02"
+}

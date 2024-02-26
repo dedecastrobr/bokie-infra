@@ -6,8 +6,11 @@ resource "aws_lb" "auth_lb" {
     security_groups = var.security_groups
     subnets = var.subnets
 
+    xff_header_processing_mode = "preserve"
+
 }
 
+# LISTENERS
 resource "aws_lb_listener" "auth_listener" {
   load_balancer_arn = aws_lb.auth_lb.arn
   port              = "80"
@@ -19,6 +22,7 @@ resource "aws_lb_listener" "auth_listener" {
   }
 }
 
+# TARGET GROUPS
 resource "aws_lb_target_group" "auth_tg" {
 
     name        = var.tg_name

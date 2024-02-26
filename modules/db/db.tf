@@ -1,5 +1,9 @@
-resource "aws_db_subnet_group" "default" {
-  subnet_ids = var.subnets
+resource "aws_db_subnet_group" "private" {
+  subnet_ids = var.private_subnets
+}
+
+resource "aws_db_subnet_group" "public" {
+  subnet_ids = var.public_subnets
 }
 
 resource "aws_db_instance" "db" {
@@ -12,7 +16,7 @@ resource "aws_db_instance" "db" {
   password             = var.password
   parameter_group_name = var.parameter_group_name
   skip_final_snapshot  = var.skip_final_snapshot
-  db_subnet_group_name  = aws_db_subnet_group.default.name
+  db_subnet_group_name  = aws_db_subnet_group.private.name
   vpc_security_group_ids = var.security_groups
 
 }

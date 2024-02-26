@@ -19,6 +19,18 @@ locals {
       value = "true"
     },
     {
+      name  = "KC_PROXY"
+      value = "edge"
+    },
+    {
+      name  = "KC_HTTP_ENABLED"
+      value = "true"
+    },
+        {
+      name  = "QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY"
+      value = "true"
+    },
+    {
       name  = "KC_DB"
       value = "postgres"
     },
@@ -34,6 +46,7 @@ locals {
       name  = "KC_DB_URL_HOST"
       value = tostring(var.kc_db_url)
     }
+    
   ]
   entrypoint = ["/opt/keycloak/bin/kc.sh"]
   command = ["start-dev"]

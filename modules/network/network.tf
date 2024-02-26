@@ -17,7 +17,7 @@ module "private_subnet_01"  {
     subnet-name = "private-subnet-01"
     availabilty_zone = "${data.aws_region.current.name}a"
     vpc_id = module.bokie_vpc.vpc_id
-    cidr_block = "13.1.0.0/24"
+    cidr_block = "13.1.0.0/18"
     map_public_ip_on_launch = false
     route_table_id = module.bokie_vpc.private_route_table_id
 
@@ -29,10 +29,34 @@ module "private_subnet_02" {
     subnet-name = "private-subnet-02"
     availabilty_zone = "${data.aws_region.current.name}c"
     vpc_id = module.bokie_vpc.vpc_id
-    cidr_block = "13.1.16.0/24"
+    cidr_block = "13.1.64.0/18"
     map_public_ip_on_launch = false
     route_table_id = module.bokie_vpc.private_route_table_id
   
+}
+
+module "public_subnet_01"  {
+
+    source = "../subnet"
+    subnet-name = "public-subnet-01"
+    availabilty_zone = "${data.aws_region.current.name}a"
+    vpc_id = module.bokie_vpc.vpc_id
+    cidr_block = "13.1.128.0/18"
+    map_public_ip_on_launch = false
+    route_table_id = module.bokie_vpc.public_route_table_id
+
+}
+
+module "public_subnet_02"  {
+
+    source = "../subnet"
+    subnet-name = "public-subnet-02"
+    availabilty_zone = "${data.aws_region.current.name}c"
+    vpc_id = module.bokie_vpc.vpc_id
+    cidr_block = "13.1.192.0/18"
+    map_public_ip_on_launch = false
+    route_table_id = module.bokie_vpc.public_route_table_id
+
 }
 
 ## Security Groups
@@ -73,13 +97,24 @@ module "db_sg" {
 
 ## Security Group Rules
 # DB
-module "db_sg_irule_3306" {
+module "db_sg_irule_5432" {
 
     source = "../sgroup-irule"
     security_group_id = module.db_sg.id
     from_port = 5432
     to_port = 5432
     referenced_security_group_id = module.ecs_sg.id
+    ip_protocol = "TCP"
+    
+}
+
+module "db_sg_irule_5432_all" {
+
+    source = "../sgroup-irule"
+    security_group_id = module.db_sg.id
+    from_port = 5432
+    to_port = 5432
+    cidr_block = "0.0.0.0/0"
     ip_protocol = "TCP"
     
 }
@@ -105,12 +140,34 @@ module "alb_sgroup_irule_80" {
     
 }
 
+module "alb_sgroup_irule_443" {
+
+    source = "../sgroup-irule"
+    security_group_id = module.alb_sg.id
+    from_port = 443
+    to_port = 443
+    cidr_block = "0.0.0.0/0"
+    ip_protocol = "TCP"
+    
+}
+
 module "alb_sgroup_erule_8080" {
 
     source = "../sgroup-erule"
     security_group_id = module.alb_sg.id
     from_port = "8080"
     to_port = "8080"
+    referenced_security_group_id = module.ecs_sg.id
+    ip_protocol = "TCP"
+    
+}
+
+module "alb_sgroup_erule_8443" {
+
+    source = "../sgroup-erule"
+    security_group_id = module.alb_sg.id
+    from_port = "8443"
+    to_port = "8443"
     referenced_security_group_id = module.ecs_sg.id
     ip_protocol = "TCP"
     
@@ -158,6 +215,17 @@ module "ecs_sg_irule_8080" {
     
 }
 
+module "ecs_sg_irule_8443" {
+
+    source = "../sgroup-irule"
+    security_group_id = module.ecs_sg.id
+    from_port = 8443
+    to_port = 8443
+    referenced_security_group_id = module.alb_sg.id
+    ip_protocol = "TCP"
+    
+}
+
 module "ecs_egress" {
 
     source = "../sgroup-erule"
@@ -166,3 +234,35 @@ module "ecs_egress" {
     ip_protocol      = "-1"
 
 }
+
+# # CERTIFICATE
+# resource "tls_private_key" "key" {
+#   algorithm = "RSA"
+#   rsa_bits  = 2048
+# }
+
+# resource "tls_self_signed_cert" "cert" {
+#   private_key_pem = tostring(tls_private_key.key.private_key_pem)
+
+#   subject {
+#     common_name  = "bokie.dev"
+#     organization = "Bokie Inc"
+#   }
+
+#   validity_period_hours = 12
+
+#   allowed_uses = [
+#     "key_encipherment",
+#     "digital_signature",
+#     "server_auth",
+#   ]
+# }
+
+# resource "aws_acm_certificate" "bokie" {
+
+#   depends_on = [ tls_self_signed_cert.cert, tls_private_key.key ]
+
+#   private_key      = "${tls_private_key.key.private_key_pem}"
+#   certificate_body = "${tls_self_signed_cert.cert.cert_pem}"
+
+# }

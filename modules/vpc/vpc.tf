@@ -21,7 +21,7 @@ resource "aws_internet_gateway" "internet-gateway" {
   
 }
 
-resource "aws_route_table" "public-route-table" {
+resource "aws_route_table" "public_route_table" {
     vpc_id = aws_vpc.vpc.id 
 }
 
@@ -29,13 +29,13 @@ module "public-route" {
   
   source = "../route"
 
-  route_table_id = aws_route_table.public-route-table.id
+  route_table_id = aws_route_table.public_route_table.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id = aws_internet_gateway.internet-gateway.id
 
 }
 
-resource "aws_route_table" "private-route-table" {
+resource "aws_route_table" "private_route_table" {
     vpc_id = aws_vpc.vpc.id 
 }
 
@@ -52,7 +52,7 @@ resource "aws_vpc_endpoint" "s3" {
 
     vpc_id       = aws_vpc.vpc.id
     service_name = "com.amazonaws.${data.aws_region.current.name}.s3"
-    route_table_ids   = [aws_route_table.private-route-table.id]
+    route_table_ids   = [aws_route_table.private_route_table.id]
     vpc_endpoint_type = "Gateway"
 }
 

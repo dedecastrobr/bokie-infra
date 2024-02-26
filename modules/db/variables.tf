@@ -1,6 +1,11 @@
-variable "subnets" {
-  description = "Subnets list"
+variable "private_subnets" {
+  description = "Private subnets list"
 }
+
+variable "public_subnets" {
+  description = "Public subnets list"
+}
+
 variable "allocated_storage" {
   description = "DB storage allocation"
   default = 10
