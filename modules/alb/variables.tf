@@ -8,10 +8,6 @@ variable "subnets" {
 
 variable "tg_name" {
     description = "ALB Target group name" 
-}  
-
-variable "name" {
-    description = "ALB name" 
 }
 
 variable "referenced_security_group_id" {

@@ -1,57 +1,5 @@
 data "aws_region" "current" {}
 
-locals {
-  environment = [
-    {
-      name  = "KEYCLOAK_ADMIN"
-      value = "admin"
-    },
-    {
-      name  = "KEYCLOAK_ADMIN_PASSWORD"
-      value = "admin123"
-    },
-    {
-      name  = "KC_HEALTH_ENABLED"
-      value = "true"
-    },
-    {
-      name  = "KC_METRICS_ENABLED"
-      value = "true"
-    },
-    {
-      name  = "KC_PROXY"
-      value = "edge"
-    },
-    {
-      name  = "KC_HTTP_ENABLED"
-      value = "true"
-    },
-        {
-      name  = "QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY"
-      value = "true"
-    },
-    {
-      name  = "KC_DB"
-      value = "postgres"
-    },
-    {
-      name  = "KC_DB_PASSWORD"
-      value = tostring(var.kc_db_password)
-    },
-    {
-      name  = "KC_DB_URL_DATABASE"
-      value = tostring(var.kc_db_name)
-    },
-    {
-      name  = "KC_DB_URL_HOST"
-      value = tostring(var.kc_db_url)
-    }
-    
-  ]
-  entrypoint = ["/opt/keycloak/bin/kc.sh"]
-  command = ["start-dev"]
-}
-
 resource "aws_ecs_task_definition" "task_definition" {
   family = var.family
   execution_role_arn       = var.ecs_task_execution_role
@@ -69,8 +17,8 @@ resource "aws_ecs_task_definition" "task_definition" {
       cpu       = var.cpu
       memory    = var.memory
       essential = var.essential
-      entrypoint = local.entrypoint
-      command = local.command
+      entrypoint = var.entrypoint
+      command = var.command
       portMappings = [
         {
           containerPort = var.container_port
@@ -85,11 +33,11 @@ resource "aws_ecs_task_definition" "task_definition" {
           "awslogs-stream-prefix" = "ecs"
         }
       }
-      environment = local.environment
+      environment = var.environment
     }
   ])
 }
 
 resource "aws_cloudwatch_log_group" "log-group" {
-  name = "bokie-logs"
+  name = var.log_group
 }

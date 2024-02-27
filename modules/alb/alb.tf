@@ -1,6 +1,5 @@
 resource "aws_lb" "auth_lb" {
 
-    name = var.name
     internal = false
     load_balancer_type = "application"
     security_groups = var.security_groups
@@ -20,6 +19,7 @@ resource "aws_lb_listener" "auth_listener" {
     target_group_arn = aws_lb_target_group.auth_tg.arn
     type             = "forward"
   }
+  
 }
 
 # TARGET GROUPS
@@ -34,7 +34,7 @@ resource "aws_lb_target_group" "auth_tg" {
     health_check {
         enabled = true
         interval = 30
-        path = "/health"
+        path = "/auth/health"
         protocol = "HTTP"
         port = "traffic-port"
     }

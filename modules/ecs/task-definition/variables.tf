@@ -61,21 +61,18 @@ variable "log_region" {
 
 variable "log_group" {
   description = "Container log group"
-  default = "bokie-logs"
+  default = "logs"
 }
 
-variable "keycloak_db_user" {
-  description = "KC databse user"
+variable "entrypoint" {
+  description = "Docker image entrypoint"
 }
 
-variable "kc_db_password" {
-  description = "KC database password"
+variable "command" {
+  description = "Docker image command"
+  default = null
 }
 
-variable "kc_db_name" {
-  description = "KC database name"
-}
-
-variable "kc_db_url" {
-  description = "KC database host"
+variable "environment" {
+  description = "Doker image enviroment variables"
 }
